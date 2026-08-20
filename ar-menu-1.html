@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Scan Menu — AR Food Preview</title>
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#0d0c0a;
+    --panel:#171512;
+    --orange:#f5a623;
+    --orange-deep:#d9860f;
+    --red:#c81e2c;
+    --cream:#f4ead9;
+    --line:#3a352c;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--black);
+    color:var(--cream);
+    font-family:'Archivo',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .display{font-family:'Anton',sans-serif; letter-spacing:0.5px; text-transform:uppercase;}
+
+  /* HERO */
+  .hero{
+    padding:56px 24px 40px;
+    background:
+      radial-gradient(circle at 15% -10%, rgba(245,166,35,0.18), transparent 55%),
+      var(--black);
+    border-bottom:1px solid var(--line);
+    text-align:center;
+  }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--red); color:#fff; font-weight:700; font-size:12px;
+    letter-spacing:1.5px; text-transform:uppercase; padding:6px 14px; border-radius:999px;
+  }
+  .eyebrow::before{content:"●"; font-size:8px; color:#ffcf6b; animation:pulse 1.6s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+  .hero h1{
+    font-size:clamp(38px,9vw,64px);
+    line-height:0.95;
+    margin:18px 0 10px;
+    color:var(--orange);
+    text-shadow:3px 3px 0 var(--red);
+  }
+  .hero p{max-width:480px; margin:0 auto; color:#cfc4ad; font-size:15px; line-height:1.5;}
+
+  /* PHONE-SCAN DEMO */
+  .scan-demo{
+    max-width:420px; margin:34px auto 0; background:var(--panel);
+    border:1px solid var(--line); border-radius:20px; padding:20px;
+  }
+  .scan-demo img{width:150px; height:150px; display:block; margin:0 auto 12px; border-radius:12px; background:#fff; padding:8px;}
+  .scan-demo .cap{text-align:center; font-size:13px; color:#cfc4ad;}
+  .scan-demo .cap b{color:var(--orange);}
+
+  /* SECTION LABEL */
+  .section-label{
+    display:flex; align-items:center; gap:12px; max-width:900px; margin:48px auto 18px; padding:0 20px;
+  }
+  .section-label span{
+    background:var(--red); color:#fff; font-weight:800; font-size:13px;
+    letter-spacing:1px; text-transform:uppercase; padding:7px 16px;
+  }
+  .section-label::after{content:""; flex:1; height:1px; background:var(--line);}
+
+  /* LIVE AR CARD */
+  .ar-card{
+    max-width:900px; margin:0 auto 40px; padding:0 20px;
+  }
+  .ar-box{
+    background:linear-gradient(180deg,#221c12,var(--panel));
+    border:1px solid var(--orange-deep); border-radius:18px; overflow:hidden;
+  }
+  model-viewer{
+    width:100%; height:320px; --poster-color: transparent;
+    background:radial-gradient(circle, #2a2318, #14110b);
+    position:relative;
+  }
+  .ar-info{padding:18px 20px 22px;}
+  .ar-info h3{margin:0 0 6px; font-size:22px; color:var(--orange);}
+  .ar-info p{margin:0 0 14px; font-size:13.5px; color:#cfc4ad; line-height:1.5;}
+  .ar-btn{
+    display:inline-block; background:var(--orange); color:#1a1305; font-weight:800;
+    text-transform:uppercase; letter-spacing:0.5px; font-size:13px;
+    padding:11px 20px; border-radius:999px; border:none; cursor:pointer;
+    position:absolute; bottom:16px; right:16px;
+  }
+  .badge-live{
+    display:inline-block; background:#1c3d1f; color:#7be08a; font-size:11px; font-weight:700;
+    letter-spacing:1px; text-transform:uppercase; padding:4px 10px; border-radius:999px; margin-bottom:10px;
+  }
+
+  /* MENU GRID (existing items, AR "coming soon") */
+  .grid{
+    max-width:900px; margin:0 auto; padding:0 20px 20px;
+    display:grid; grid-template-columns:1fr; gap:14px;
+  }
+  @media(min-width:640px){ .grid{grid-template-columns:1fr 1fr;} }
+  .item{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:16px; display:flex; gap:14px; align-items:center;
+  }
+  .item .thumb{
+    width:64px; height:64px; border-radius:10px; flex:none;
+    background:linear-gradient(135deg,var(--orange),var(--red));
+    display:flex; align-items:center; justify-content:center; font-size:26px;
+  }
+  .item h4{margin:0 0 3px; font-size:15px; color:var(--cream);}
+  .item .meta{font-size:11.5px; color:#8a8272; display:flex; gap:6px; align-items:center;}
+  .item .soon{
+    background:#3a2c14; color:var(--orange); font-size:10px; font-weight:800;
+    letter-spacing:0.5px; text-transform:uppercase; padding:3px 8px; border-radius:999px;
+  }
+  .item .price{margin-left:auto; font-family:'Anton',sans-serif; color:var(--orange); font-size:18px;}
+
+  /* ROADMAP */
+  .roadmap{max-width:900px; margin:44px auto 60px; padding:0 20px;}
+  .roadmap ol{padding-left:0; list-style:none; counter-reset:step; margin:0;}
+  .roadmap li{
+    counter-increment:step; position:relative; padding:14px 0 14px 46px;
+    border-bottom:1px solid var(--line); font-size:14px; color:#cfc4ad; line-height:1.5;
+  }
+  .roadmap li:last-child{border-bottom:none;}
+  .roadmap li::before{
+    content:counter(step);
+    font-family:'Anton',sans-serif; position:absolute; left:0; top:12px;
+    width:30px; height:30px; border-radius:50%; background:var(--red); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:14px;
+  }
+  .roadmap b{color:var(--orange);}
+  footer{text-align:center; color:#665f52; font-size:12px; padding:0 20px 40px;}
+</style>
+</head>
+<body>
+
+  <section class="hero">
+    <span class="eyebrow">AR Menu Prototype</span>
+    <h1 class="display">Scan It.<br>Watch It<br>Land On<br>Your Table.</h1>
+    <p>Point your phone at the QR code on the printed menu and your food shows up in 3D, right on the table, before you order.</p>
+
+    <div class="scan-demo">
+      <div id="qr-holder" style="width:150px;height:150px;margin:0 auto 12px;border-radius:12px;background:#fff;padding:8px;display:flex;align-items:center;justify-content:center;"></div>
+      <div class="cap">This is the QR that goes on your printed menu — it opens <b>this exact page</b> in the customer's browser. No app to download.</div>
+    </div>
+  </section>
+
+  <div class="section-label"><span>Live AR Demo</span></div>
+  <div class="ar-card">
+    <div class="ar-box">
+      <model-viewer
+        src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@main/2.0/Avocado/glTF-Binary/Avocado.glb"
+        alt="3D preview of a dish"
+        ar
+        ar-modes="webxr scene-viewer quick-look"
+        camera-controls
+        auto-rotate
+        shadow-intensity="1.2"
+        exposure="1.1"
+        environment-image="neutral">
+        <button slot="ar-button" class="ar-btn" id="ar-btn">View in Your Space</button>
+        <div slot="progress-bar"></div>
+      </model-viewer>
+      <div class="ar-info">
+        <span class="badge-live">Tap · Drag · Rotate</span>
+        <h3 class="display">Try It Right Now</h3>
+        <p>This is a real, working AR viewer — drag to rotate, pinch to zoom. On a phone, tap "View in your space" to drop it on your actual table using your camera. This is a stand-in model so you can feel the mechanic; your real dishes get scanned in to replace it.</p>
+        <p id="ar-fallback-note" style="display:none; font-size:12px; color:#8a8272;">AR placement needs a phone camera (Safari on iPhone or Chrome on Android) — on desktop you can still drag to rotate above.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label"><span>Your Menu · AR Status</span></div>
+  <div class="grid">
+    <div class="item">
+      <div class="thumb">🍤</div>
+      <div><h4>Chicken Delicious</h4><div class="meta"><span class="soon">3D scan pending</span></div></div>
+      <div class="price">$8</div>
+    </div>
+    <div class="item">
+      <div class="thumb">🍝</div>
+      <div><h4>Cheese Chicken Pasta</h4><div class="meta"><span class="soon">3D scan pending</span></div></div>
+      <div class="price">$8</div>
+    </div>
+    <div class="item">
+      <div class="thumb">🍔</div>
+      <div><h4>Cheese Chicken Burger</h4><div class="meta"><span class="soon">3D scan pending</span></div></div>
+      <div class="price">$8</div>
+    </div>
+    <div class="item">
+      <div class="thumb">🌮</div>
+      <div><h4>Beef Taco & Mayo</h4><div class="meta"><span class="soon">3D scan pending</span></div></div>
+      <div class="price">$8</div>
+    </div>
+  </div>
+
+  <div class="roadmap">
+    <div class="section-label" style="margin:0 0 18px; padding:0;"><span>Going Live</span></div>
+    <ol>
+      <li><b>Scan your real dishes.</b> Use an app like Polycam, Luma AI, or KIRI Engine (free, iPhone/Android) — plate the dish, walk around it for 20–30 seconds, export as .glb.</li>
+      <li><b>Swap the model.</b> Replace the demo Avocado file above with each dish's .glb, one card per menu item.</li>
+      <li><b>Host the page.</b> Publish this file anywhere (Netlify, Vercel, or your existing website) — you'll get a real URL.</li>
+      <li><b>Generate your real QR.</b> Point it at that live URL instead of the placeholder above, and print it on the menu card.</li>
+      <li><b>Test on-site.</b> AR "view in your space" works in Safari on iPhone and Chrome on Android — no app install needed.</li>
+    </ol>
+  </div>
+
+  <footer>Prototype built to demonstrate the scan-to-AR flow for your food menu.</footer>
+
+<script>
+  // Show a note if this device/browser can't do AR placement (e.g. desktop)
+  customElements.whenDefined('model-viewer').then(function () {
+    var mv = document.querySelector('model-viewer');
+    mv.addEventListener('ar-status', function (e) {
+      if (e.detail.status === 'not-presenting' && !mv.canActivateAR) {
+        document.getElementById('ar-fallback-note').style.display = 'block';
+      }
+    });
+    setTimeout(function () {
+      if (!mv.canActivateAR) {
+        document.getElementById('ar-fallback-note').style.display = 'block';
+      }
+    }, 1500);
+  });
+
+  // Generate the QR code locally in-browser (no external image API needed)
+  var qr = qrcode(0, 'M');
+  qr.addData('https://example-restaurant.com/ar-menu');
+  qr.make();
+  document.getElementById('qr-holder').innerHTML = qr.createSvgTag({cellSize: 4, margin: 2});
+  document.querySelector('#qr-holder svg').style.width = '100%';
+  document.querySelector('#qr-holder svg').style.height = '100%';
+</script>
+</body>
+</html>
