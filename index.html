@@ -149,7 +149,7 @@
 
     <div class="scan-demo">
       <div id="qr-holder" style="width:150px;height:150px;margin:0 auto 12px;border-radius:12px;background:#fff;padding:8px;display:flex;align-items:center;justify-content:center;"></div>
-      <div class="cap">This is the QR that goes on your printed menu — it opens <b>this exact page</b> in the customer's browser. No app to download.</div>
+      <div class="cap">Scan this with your phone camera — it opens <b>your live AR menu</b> at riyazclock.github.io/Menurepo. No app to download.</div>
     </div>
   </section>
 
@@ -233,7 +233,7 @@
 
   // Generate the QR code locally in-browser (no external image API needed)
   var qr = qrcode(0, 'M');
-  qr.addData('https://example-restaurant.com/ar-menu');
+  qr.addData('https://riyazclock.github.io/Menurepo/');
   qr.make();
   document.getElementById('qr-holder').innerHTML = qr.createSvgTag({cellSize: 4, margin: 2});
   document.querySelector('#qr-holder svg').style.width = '100%';
